@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill';
 import { showNotification } from './notification'
 
 const uploadImage = async (server: string, token: string, image: string) => {
@@ -101,19 +102,21 @@ const tweetAndMisskey = async () => {
   }
 
   const token = await new Promise<string>((resolve, reject) => {
-    chrome.storage.sync.get(['misskey_token'], (result) => {
-      const token = result.misskey_token as string;
-      if (!token) { 
-        showNotification('Tokenが設定されていません。', 'error')
-        reject()
-      } else { resolve(token) }
-    })
+    browser.storage.sync.get(['misskey_token'])
+      .then((result) => {
+        const token = result.misskey_token as string;
+        if (!token) { 
+          showNotification('Tokenが設定されていません。', 'error')
+          reject()
+        } else { resolve(token) }
+      });
   })
 
   let server = await new Promise<string>((resolve, reject) => {
-    chrome.storage.sync.get(['misskey_server'], (result) => {
-      resolve(result.misskey_server ?? "https://misskey.io")
-    })
+    browser.storage.sync.get(['misskey_server'])
+      .then((result) => {
+        resolve(result.misskey_server ?? "https://misskey.io")
+      })
   })
 
   if (server.endsWith('/')) {
@@ -121,9 +124,10 @@ const tweetAndMisskey = async () => {
   }
 
   const cw = await new Promise<boolean>((resolve, reject) => {
-    chrome.storage.sync.get(['misskey_cw'], (result) => {
-      resolve(result.misskey_cw ?? false)
-    })
+    browser.storage.sync.get(['misskey_cw'])
+      .then((result) => {
+        resolve(result.misskey_cw ?? false)
+      });
   });
 
   const options = { cw, token, server }
@@ -132,7 +136,7 @@ const tweetAndMisskey = async () => {
 
 const addMisskeyButton = (tweetBox: Node) => {
   const misskeyIcon = document.createElement('img')
-  misskeyIcon.src = chrome.runtime.getURL('misskey_icon.png');
+  misskeyIcon.src = browser.runtime.getURL('misskey_icon.png');
   misskeyIcon.style.width = '24px';
   misskeyIcon.style.height = '24px';
   misskeyIcon.style.verticalAlign = 'middle';

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom"
+import browser from "webextension-polyfill";
 import { Container, Typography, AppBar, Toolbar, TextField, Link, FormControlLabel, Checkbox } from "@mui/material"
 
 const Popup = () => {
@@ -8,7 +9,7 @@ const Popup = () => {
   const [cw, setCw] = useState<boolean>(false)
 
   useEffect(() => {
-    chrome.storage.sync.get(['misskey_token', 'misskey_server', 'misskey_cw'], (result) => {
+    browser.storage.sync.get(['misskey_token', 'misskey_server', 'misskey_cw']).then((result) => {
       const token = result.misskey_token;
       const server = result.misskey_server;
       const cw = result.misskey_cw;
@@ -20,9 +21,13 @@ const Popup = () => {
   }, [])
   
   const updateToken = (token: string) => {
-    chrome.storage.sync.set({ misskey_token: token }, () => {
-      console.log('Token saved');
-    });
+    browser.storage.sync.set({ misskey_token: token })
+      .then(() => {
+        console.log('Token saved');
+      })
+      .catch((err) => {
+        console.log(`Token save err: ${err}`);
+      });
     setToken(token)
   }
   const updateServer = (server: string) => {
@@ -30,15 +35,17 @@ const Popup = () => {
     if (!server.startsWith('https://')) {
       server = 'https://' + server
     }
-    chrome.storage.sync.set({ misskey_server: server }, () => {
-      console.log('Server saved');
-    });
+    browser.storage.sync.set({ misskey_server: server })
+      .then(() => {
+        console.log('Server saved');
+      });
   }
   const updateCw = (cw: boolean) => {
     setCw(cw)
-    chrome.storage.sync.set({ misskey_cw: cw }, () => {
-      console.log('CW saved');
-    })
+    browser.storage.sync.set({ misskey_cw: cw })
+      .then(() => {
+        console.log('CW saved');
+      });
   }
 
   const openDonationPage = () => {

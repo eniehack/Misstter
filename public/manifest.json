@@ -25,5 +25,10 @@
 
   "web_accessible_resources": [
     { "resources": ["misskey_icon.png"], "matches": ["https://twitter.com/*"] }
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{7eaad148-40a3-426c-bb3e-0daf01a0913c}"
+    }
+  }
 }
